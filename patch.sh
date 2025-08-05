@@ -3,7 +3,7 @@ set -e
 
 # ---------- Path variables ---------------------------------------------------
 PG_HOME="/home/postgres"
-PG_PREFIX="${PG_HOME}postgres"
+PG_PREFIX="${PG_HOME}/postgres"
 BEXT="${PG_HOME}/babelfish_extensions/contrib"
 
 echo "Patching Babelfish sources under $BEXT"
