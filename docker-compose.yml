@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  babelfish:
+    # build the image from the Dockerfile in this directory
+    build: .
+    container_name: babel-container
+
+    # container ports
+    ports:
+      - "5432:5432"     # psql / PostgreSQL protocol
+      - "1433:1433"     # sqlcmd / TDS
+      
+    ## persist the PGDATA directory on the host
+    #volumes:
+    #  - ./data:/home/postgres/postgres/data
+    #  - ./log:/home/postgres/postgres/data/log
+
+    environment:
+      POSTGRES_USER: postgres  # default user
+      POSTGRES_PASSWORD: "12345678"   
