@@ -115,9 +115,12 @@ RUN make PG_CONFIG=${PG_PREFIX}/bin/pg_config && \
     #! throws warning: passing argument 1 of 'PointerGetDatum' makes pointer from integer without a cast [-Wint-conversion]
     make PG_CONFIG=${PG_PREFIX}/bin/pg_config install
 
+# ---------- Workspace directory for devcontainer ----------------------------
+USER root
+RUN mkdir /workspace && chown postgres:postgres /workspace
+
 # ---------- Runtime entrypoint ----------------------------------------------
 COPY init.sh /init.sh
-USER root
 RUN chmod +x /init.sh
 USER postgres
 ENTRYPOINT [ "/init.sh" ]

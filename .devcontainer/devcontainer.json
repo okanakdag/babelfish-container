@@ -1,0 +1,15 @@
+{
+  "name": "Babelfish Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "babelfish",
+  "workspaceFolder": "/workspace",
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "microsoft.vscode-pgsql"
+      ]
+    }
+  }
+}
