@@ -23,7 +23,7 @@ RUN apt-get update && apt-get -y install uuid-dev openjdk-8-jre \
     libossp-uuid-dev libpq-dev pkg-config g++ build-essential bison
 
 # ---------- Misc build tools -------------------------------------------------
-RUN apt-get -y install git wget flex unzip nano curl
+RUN apt-get -y install git wget flex unzip nano curl vim less htop 
 
 # ---------- sqlcmd client (optional) ----------------------------------------
 WORKDIR ${PG_HOME}
