@@ -1,15 +1,8 @@
 {
   "name": "Babelfish Dev",
+  "remoteUser": "postgres",
+  "workspaceFolder": "/home/postgres/babelfish_extensions",
   "dockerComposeFile": "../docker-compose.yml",
   "service": "babelfish",
-  "workspaceFolder": "/workspace",
-  "customizations": {
-    "vscode": {
-      "settings": {},
-      "extensions": [
-        "ms-azuretools.vscode-docker",
-        "microsoft.vscode-pgsql"
-      ]
-    }
-  }
+  "forwardPorts": [5432, 1433]
 }
