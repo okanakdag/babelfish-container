@@ -14,16 +14,21 @@ ARG PG_HOME=/home/postgres
 ARG PG_PREFIX=${PG_HOME}/postgres
 ARG BEXT=${PG_HOME}/babelfish_extensions/contrib
 
+ENV BEXT=${BEXT}
+ENV PG_HOME=${PG_HOME}
+ENV PG_PREFIX=${PG_PREFIX}
+
 # ---------- System user setup -----------------------------------------------
 RUN groupadd -r postgres && useradd --no-log-init -m -r -g postgres postgres
 
 # ---------- Core build dependencies -----------------------------------------
 RUN apt-get update && apt-get -y install uuid-dev openjdk-8-jre \
     libicu-dev libxml2-dev openssl libssl-dev python3 python3-dev \
-    libossp-uuid-dev libpq-dev pkg-config g++ build-essential bison
+    libossp-uuid-dev libpq-dev pkg-config g++ build-essential bison 
 
 # ---------- Misc build tools -------------------------------------------------
-RUN apt-get -y install git wget flex unzip nano curl vim less htop 
+RUN apt-get -y install git wget flex unzip nano curl vim less htop sudo && \
+    echo "postgres ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # ---------- sqlcmd client (optional) ----------------------------------------
 WORKDIR ${PG_HOME}
@@ -93,12 +98,34 @@ RUN chmod +x /tmp/patch.sh
 RUN /tmp/patch.sh
 USER postgres
 
+#---------- Install postgis --------------------------------------------------
+# Installation document: https://postgis.net/docs/postgis_installation.html
+# Optional packages are not installed
+
+# Install dependencies
+USER root
+RUN apt-get update && apt-get install -y proj-bin libproj-dev software-properties-common \
+    libjson-c-dev libxml2 libjson-c5 libjson-c-dev gdal-bin libgdal-dev && \
+    add-apt-repository -y ppa:ubuntugis/ppa && \
+    apt-get install -y geos-bin libgeos-dev
+
+# Get and build postgis source code
+WORKDIR ${PG_HOME}
+RUN wget https://postgis.net/stuff/postgis-3.5.4dev.tar.gz && \
+    tar -xvzf postgis-3.5.4dev.tar.gz
+
+WORKDIR  ${PG_HOME}/postgis-3.5.4dev
+RUN ./configure --without-wagyu --without-protobuf \
+    --with-pgconfig="${PG_CONFIG}" && make && make install
+    
 # ---------- Build individual extensions -------------------------------------
 WORKDIR ${BEXT}/babelfishpg_money
 RUN make && make install
 
 WORKDIR ${BEXT}/babelfishpg_common
-RUN make && make install
+RUN make -j 4 PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES' \
+    CPPFLAGS="-I${PG_SRC}"  && \
+    make PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES' install
 
 WORKDIR ${BEXT}/babelfishpg_tds
 RUN make && make install
@@ -107,7 +134,9 @@ RUN make && make install
 WORKDIR ${BEXT}/babelfishpg_tsql
 # antlr4 path update worked for some files but few files such as src/tsqlUnsupportedFeatureHandler.cpp
 #   cant find the antlr4-runtime path so I added CPPFLAGS. Some paths might be hardcoded? 
-RUN make CPPFLAGS="-I${PG_PREFIX}/include/antlr4-runtime" && make install
+RUN make CPPFLAGS="-I${PG_PREFIX}/include/antlr4-runtime -I${PG_SRC}" \
+    PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES' && \
+    make install PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES'
 
 WORKDIR ${BEXT}/babelfishpg_unit
 # Added PG_CONFIG path because of hardcoded path
