@@ -24,7 +24,8 @@ RUN groupadd -r postgres && useradd --no-log-init -m -r -g postgres postgres
 # ---------- Core build dependencies -----------------------------------------
 RUN apt-get update && apt-get -y install uuid-dev openjdk-8-jre \
     libicu-dev libxml2-dev openssl libssl-dev python3 python3-dev \
-    libossp-uuid-dev libpq-dev pkg-config g++ build-essential bison 
+    libossp-uuid-dev libpq-dev pkg-config g++ build-essential bison && \
+    rm -rf /var/lib/apt/lists/*
 
 # ---------- Misc build tools -------------------------------------------------
 RUN apt-get -y install git wget flex unzip nano curl vim less htop sudo && \
@@ -35,7 +36,8 @@ WORKDIR ${PG_HOME}
 RUN curl https://packages.microsoft.com/keys/microsoft.asc | tee /etc/apt/trusted.gpg.d/microsoft.asc && \
     curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list | \
         tee /etc/apt/sources.list.d/mssql-release.list
-RUN apt-get update && ACCEPT_EULA=Y apt-get -y install mssql-tools unixodbc-dev
+RUN apt-get update && ACCEPT_EULA=Y apt-get -y install mssql-tools unixodbc-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV PATH=/opt/mssql-tools/bin:${PATH}
 ENV PATH=${PG_PREFIX}/bin:${PATH}
@@ -107,12 +109,14 @@ USER root
 RUN apt-get update && apt-get install -y proj-bin libproj-dev software-properties-common \
     libjson-c-dev libxml2 libjson-c5 libjson-c-dev gdal-bin libgdal-dev && \
     add-apt-repository -y ppa:ubuntugis/ppa && \
-    apt-get install -y geos-bin libgeos-dev
+    apt-get install -y geos-bin libgeos-dev && \
+    rm -rf /var/lib/apt/lists/*
 
 # Get and build postgis source code
 WORKDIR ${PG_HOME}
 RUN wget https://postgis.net/stuff/postgis-3.5.4dev.tar.gz && \
-    tar -xvzf postgis-3.5.4dev.tar.gz
+    tar -xvzf postgis-3.5.4dev.tar.gz && \
+    rm postgis-3.5.4dev.tar.gz
 
 WORKDIR  ${PG_HOME}/postgis-3.5.4dev
 RUN ./configure --without-wagyu --without-protobuf \
