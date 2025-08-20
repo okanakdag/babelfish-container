@@ -5,7 +5,7 @@ services:
     # build the image from the Dockerfile in this directory
     build: .
     container_name: babelfish-container
-    privileged: true
+    privileged: true # allow the container to run with extended privileges
 
     # container ports
     ports:
