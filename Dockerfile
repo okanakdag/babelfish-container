@@ -28,7 +28,8 @@ RUN apt-get update && apt-get -y install uuid-dev openjdk-8-jre \
     rm -rf /var/lib/apt/lists/*
 
 # ---------- Misc build tools -------------------------------------------------
-RUN apt-get -y install git wget flex unzip nano curl vim less htop sudo && \
+RUN apt-get update && apt-get -y install git wget flex unzip nano curl vim less htop sudo && \
+    rm -rf /var/lib/apt/lists/* && \
     echo "postgres ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # ---------- sqlcmd client (optional) ----------------------------------------
@@ -123,6 +124,9 @@ RUN ./configure --without-wagyu --without-protobuf \
     --with-pgconfig="${PG_CONFIG}" && make && make install
     
 # ---------- Build individual extensions -------------------------------------
+# There are a lot of can't find errors so I added CPPFLAGS and PG_CPPFLAGS
+# DENABLE_SPATIAL_TYPES flags are for postgis support, others are for errors
+
 WORKDIR ${BEXT}/babelfishpg_money
 RUN make && make install
 
@@ -136,21 +140,14 @@ RUN make && make install
 
 # depends on CMakeLists.txt antlr4-runtime path update
 WORKDIR ${BEXT}/babelfishpg_tsql
-# antlr4 path update worked for some files but few files such as src/tsqlUnsupportedFeatureHandler.cpp
-#   cant find the antlr4-runtime path so I added CPPFLAGS. Some paths might be hardcoded? 
 RUN make CPPFLAGS="-I${PG_PREFIX}/include/antlr4-runtime -I${PG_SRC}" \
     PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES' && \
     make install PG_CPPFLAGS='-I/usr/include -DENABLE_SPATIAL_TYPES'
 
 WORKDIR ${BEXT}/babelfishpg_unit
-# Added PG_CONFIG path because of hardcoded path
-RUN make PG_CONFIG=${PG_PREFIX}/bin/pg_config && \
+RUN make PG_CONFIG="${PG_PREFIX}/bin/pg_config" && \
     #! throws warning: passing argument 1 of 'PointerGetDatum' makes pointer from integer without a cast [-Wint-conversion]
-    make PG_CONFIG=${PG_PREFIX}/bin/pg_config install
-
-# ---------- Workspace directory for devcontainer ----------------------------
-USER root
-RUN mkdir /workspace && chown postgres:postgres /workspace
+    make PG_CONFIG="${PG_PREFIX}/bin/pg_config" install
 
 # ---------- Runtime entrypoint ----------------------------------------------
 COPY init.sh /init.sh

@@ -4,7 +4,8 @@ services:
   babelfish:
     # build the image from the Dockerfile in this directory
     build: .
-    container_name: babel-container
+    container_name: babelfish-container
+    privileged: true
 
     # container ports
     ports:
@@ -18,4 +19,4 @@ services:
 
     environment:
       POSTGRES_USER: postgres  # default user
-      POSTGRES_PASSWORD: "12345678"   
+      POSTGRES_PASSWORD: "12345678" 
