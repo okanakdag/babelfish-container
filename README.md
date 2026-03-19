@@ -1,10 +1,28 @@
 # 🐟 Babelfish-for-PostgreSQL 4.3 container
 
-This project contains a Docker-based development environment for working on Babelfish for PostgreSQL with PostGIS support.
+A Docker-based development environment for building and testing Babelfish for PostgreSQL with PostGIS support.
 
-It builds PostgreSQL from source with Babelfish patches, and installs PostGIS and common dev tools into a VS Code–ready privileged Dev Container.
+This setup is intended for development only and is not safe for production use.
 
-This build is for development only and not safe for deployment.
+## Objectives
+- Reduce the time and manual effort needed to set up Babelfish for PostgreSQL from source
+- Create a consistent development environment across different machines
+- Help teams avoid environment-specific issues during development and testing
+
+## Key Features
+- Builds PostgreSQL and Babelfish from source in Docker
+- Adds PostGIS support for spatial database features
+- Applies custom patches for Ubuntu 22.04 build compatibility
+- Automates database setup and Babelfish configuration on startup
+- Exposes PostgreSQL (`5432`) and SQL Server-compatible (`1433`) ports
+- Includes `psql` and `sqlcmd` for testing inside the container
+- Supports VS Code Dev Containers for easier development
+
+## Sources
+- [Babelfish for PostgreSQL extensions](https://github.com/babelfish-for-postgresql/babelfish_extensions)
+- [PostgreSQL modified for Babelfish](https://github.com/babelfish-for-postgresql/postgresql_modified_for_babelfish)
+- [Babelfish build instructions](https://github.com/babelfish-for-postgresql/babelfish_extensions/blob/BABEL_4_3_STABLE/contrib/README.md)
+- [PostGIS installation documentation](https://postgis.net/docs/postgis_installation.html)
 
 ## Quickstart
 1. Build the container with `docker compose up --build -d`
